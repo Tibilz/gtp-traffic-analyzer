@@ -33,3 +33,6 @@ See cheatsheet (iperf bandwidth test)
 
 6. Setup ipv4 for upfgtp
 sudo ip addr add 10.2.3.1/24 dev upfgtp
+add to upfcfg.yaml?
+
+7. Check protocolstack and gptu packet structure (use ip adress from 6.)

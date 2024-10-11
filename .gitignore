@@ -1,1 +1,8 @@
 .vscode/
+
+# Betriebssystemspezifische Dateien
+.DS_Store  # macOS
+Thumbs.db  # Windows
+
+# Build-Ordner
+build/

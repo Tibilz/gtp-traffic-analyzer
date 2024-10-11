@@ -22,6 +22,7 @@ On kom_tg: iperf3 -c 10.2.2.157
 
 # wireshark (tshark for desktopless environments)
 Install: sudo apt install tshark  
-On NFV: sudo tshark -i ens18 -Y "gtp"
-sudo tshark -i ens18 -Y "gtp.message == 255 && ip.src == 10.2.2.154"
-
+On NFV: sudo tshark -i upfgtp -Y "gtp.message == 255 && ip.src == 10.2.2.154" -V
+// 255, only GPT-U should get through, everything else gets filtered. GTP consists of different levels
+// -V parameter, for detailled View of the protocol -> Header insight
+// In TG-VM, use upfgtp ipv4 (inet) adress
