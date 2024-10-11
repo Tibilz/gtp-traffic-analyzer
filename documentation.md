@@ -32,7 +32,8 @@ On TG: install PacketRusher, setup config.yaml (according to Subscriber in webco
 See cheatsheet (iperf bandwidth test)
 
 6. Setup ipv4 for upfgtp
-sudo ip addr add 10.2.3.1/24 dev upfgtp
+sudo ip addr add 10.2.3.1/24 dev upfgtp  
 add to upfcfg.yaml?
 
-7. Check protocolstack and gptu packet structure (use ip adress from 6.)
+7. Check protocolstack and gptu packet structure (use ip adress from 6.)  
+-> tried to used the packetrusher interface, didn't worked :/
