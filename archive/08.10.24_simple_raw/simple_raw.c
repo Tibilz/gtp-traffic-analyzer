@@ -16,29 +16,63 @@
 // Hardcodierte IP-Adresse für die Filterung
 const char *FILTER_IP = "10.2.2.154";
 
-void print_packet(const unsigned char *data, int size) {
+void print_packet(const unsigned char *data, int size)
+{
     printf("\nPacket (%d bytes):\n", size);
-    for (int i = 0; i < size; i++) {
+    for (int i = 0; i < size; i++)
+    {
         printf("%02X ", data[i]);
-        if ((i + 1) % 16 == 0) printf("\n");
+        if ((i + 1) % 16 == 0)
+            printf("\n");
     }
     printf("\n");
 }
 
-int main() {
+int main()
+{
     int sockfd;
     unsigned char buffer[BUF_SIZE];
     struct sockaddr saddr;
     socklen_t saddr_len = sizeof(saddr);
-    char interface[10];
+    char interface[10] = "upfgtp";  // Standardwert "upfgtp"
+    char filter_choice[5] = "nein"; // Standardwert "nein"
+    int use_filter = 0;
 
-    // Interface Auswahl
-    printf("Wähle ein Interface (ens18 oder upfgtp): ");
-    scanf("%s", interface);
+    // IP-Filterung Auswahl mit Standardwert "nein" bei Enter
+    printf("IP-Filterung aktivieren? (ja/nein) [Standard: nein]: ");
+    if (fgets(filter_choice, sizeof(filter_choice), stdin) != NULL)
+    {
+        // Zeilenumbruch entfernen
+        filter_choice[strcspn(filter_choice, "\n")] = 0;
+        // Wenn leer, Standardwert verwenden
+        if (strlen(filter_choice) == 0)
+        {
+            strcpy(filter_choice, "nein");
+        }
+    }
+
+    // Interface Auswahl mit Standardwert "upfgtp" bei Enter
+    printf("Wähle ein Interface (ens18 oder upfgtp) [Standard: upfgtp]: ");
+    if (fgets(interface, sizeof(interface), stdin) != NULL)
+    {
+        // Zeilenumbruch entfernen
+        interface[strcspn(interface, "\n")] = 0;
+        // Wenn leer, Standardwert verwenden
+        if (strlen(interface) == 0)
+        {
+            strcpy(interface, "upfgtp");
+        }
+    }
+
+    if (strcmp(filter_choice, "ja") == 0)
+    {
+        use_filter = 1;
+    }
 
     // Erstellen eines Raw Sockets
     sockfd = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL));
-    if (sockfd < 0) {
+    if (sockfd < 0)
+    {
         perror("Socket konnte nicht erstellt werden");
         exit(EXIT_FAILURE);
     }
@@ -48,7 +82,8 @@ int main() {
     memset(&ifr, 0, sizeof(ifr));
     strncpy(ifr.ifr_name, interface, IFNAMSIZ - 1);
 
-    if (ioctl(sockfd, SIOCGIFINDEX, &ifr) < 0) {
+    if (ioctl(sockfd, SIOCGIFINDEX, &ifr) < 0)
+    {
         perror("Interface konnte nicht gefunden werden");
         close(sockfd);
         exit(EXIT_FAILURE);
@@ -61,19 +96,27 @@ int main() {
     sll.sll_ifindex = ifr.ifr_ifindex;
     sll.sll_protocol = htons(ETH_P_ALL);
 
-    if (bind(sockfd, (struct sockaddr *)&sll, sizeof(sll)) < 0) {
+    if (bind(sockfd, (struct sockaddr *)&sll, sizeof(sll)) < 0)
+    {
         perror("Bind fehlgeschlagen");
         close(sockfd);
         exit(EXIT_FAILURE);
     }
 
-    printf("Erfasse Pakete auf Interface: %s (Nur von IP: %s)...\n", interface, FILTER_IP);
+    printf("Erfasse Pakete auf Interface: %s", interface);
+    if (use_filter)
+    {
+        printf(" (Nur von IP: %s)", FILTER_IP);
+    }
+    printf("...\n");
 
     // Endloses Erfassen und Anzeigen des Bytestreams
-    while (1) {
+    while (1)
+    {
         // Pakete erfassen
         int packet_size = recvfrom(sockfd, buffer, BUF_SIZE, 0, &saddr, &saddr_len);
-        if (packet_size < 0) {
+        if (packet_size < 0)
+        {
             perror("Fehler beim Empfangen des Pakets");
             close(sockfd);
             exit(EXIT_FAILURE);
@@ -89,8 +132,9 @@ int main() {
         char src_ip[INET_ADDRSTRLEN];
         inet_ntop(AF_INET, &(source_addr), src_ip, INET_ADDRSTRLEN);
 
-        // Nur Pakete von der spezifischen IP-Adresse anzeigen
-        if (strcmp(src_ip, FILTER_IP) == 0) {
+        // Paket basierend auf IP-Filter anzeigen, falls aktiviert
+        if (!use_filter || (use_filter && strcmp(src_ip, FILTER_IP) == 0))
+        {
             printf("Paket von %s empfangen\n", src_ip);
             print_packet(buffer, packet_size);
         }
