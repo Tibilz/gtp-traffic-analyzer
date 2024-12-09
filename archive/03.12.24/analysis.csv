@@ -1,0 +1,2 @@
+Total_N3,Total_N6,Matched,Lost,Discarded_N6,Avg_Latency_ms,Jitter_ms,Loss_Rate%,Throughput,Packet_Rate
+292831,0,0,275763,783975,0.000000,0.000000,94.171,0.000,0.000
