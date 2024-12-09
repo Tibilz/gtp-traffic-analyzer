@@ -353,9 +353,9 @@ void callback_n3(u_char *user, const struct pcap_pkthdr *h, const u_char *bytes)
 
     // Determine the number of bytes to skip based on protocol
     if (current_protocol == PROTOCOL_UDP) {
-        skip_bytes = 94;
+        skip_bytes = 94; //remove Ethernet (14 Bytes), IP (20 B), UDP (8 B), GPRS (12 B), IP (20 B), UDP (8 B) and iPerf-Header (12 B)
     } else { // PROTOCOL_TCP
-        skip_bytes = 106;
+        skip_bytes = 106; //remove Ethernet (14 Bytes), IP (20 B), UDP (8 B), GPRS (12 B), IP (20 B) and TCP (32 B)
     }
 
     unsigned char *pl = extract_payload_n3(bytes, h, &payload_len, skip_bytes);
@@ -386,9 +386,9 @@ void callback_n6(u_char *user, const struct pcap_pkthdr *h, const u_char *bytes)
 
     // Determine the number of bytes to skip based on protocol
     if (current_protocol == PROTOCOL_UDP) {
-        skip_bytes = 40;
+        skip_bytes = 40; //remove IP-Header (20 Bytes), UDP-Header (8 Bytes) and iPerf3 Header (12 Bytes)
     } else { // PROTOCOL_TCP
-        skip_bytes = 52;
+        skip_bytes = 52; //remove IP-Header (20 Bytes) and TCP-Header (32 Bytes)
     }
 
     unsigned char *pl = extract_payload_n6(bytes, h, &payload_len, skip_bytes);
